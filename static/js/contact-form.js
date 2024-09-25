@@ -12,13 +12,10 @@ document.getElementById('contactForm').addEventListener('submit', async function
 
     try {
         // Send data to AWS API with Content-Type and User-Agent headers
-        const awsResponse = await fetch('http://13.201.128.192:5000/add_to_sheet', {
+        const awsResponse = await fetch('/add_to_sheet', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json', // Set Content-Type header
-                'User-Agent': 'PostmanRuntime/7.41.2',
-                'Postman-Token': '69da2aa7-ce18-4b84-872d-93cf81170353',
-                'Host': 'https://ocissor.github.io/'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 name: name,
@@ -30,13 +27,6 @@ document.getElementById('contactForm').addEventListener('submit', async function
 
         if (awsResponse.ok) {
             console.log('Data sent to AWS API successfully.');
-
-            // Send data to Google Sheets
-            await sendToGoogleSheets(name, mobile, email, message);
-
-            // Show success message
-            alert('Thank you! Your message has been sent.');
-
         } else {
             console.error('Failed to send data to AWS API.');
             alert('There was a problem submitting the form to AWS. Please try again.');

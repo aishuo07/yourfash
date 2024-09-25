@@ -12,7 +12,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
 
     try {
         // Send data to AWS API with Content-Type and User-Agent headers
-        const awsResponse = await fetch('https://yourfash.ai/add_to_sheet', {
+        const awsResponse = await fetch('https://www.yourfash.ai/add_to_sheet', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

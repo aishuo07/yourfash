@@ -3,11 +3,14 @@ from flask_cors import CORS
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import logging
+from scraper import KeepaCategoryFetcher, fetch_and_save_product_details  # Importing from scraper.py
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+KEEPA_API_KEY = "2u04omevbnatrcf8oofg5atl8bbflaci23ja9s3fjhmh78i0jjeaukcgr7lca8hj"
+
 
 # Set up Google Sheets API credentials
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -76,6 +79,32 @@ def add_to_sheet():
             'headers': headers,
             'error': str(e)
         }), 500
+
+@app.route("/fetch-products", methods=["POST"])
+def fetch_products():
+    try:
+        data = request.json
+        category_id = data.get("category_id")
+        product_limit = data.get("limit", 8000)
+
+        if not category_id:
+            return jsonify({"error": "category_id is required"}), 400
+
+        if product_limit > 8000:
+            product_limit = 8000
+
+        fetcher = KeepaCategoryFetcher(KEEPA_API_KEY)
+        asins = fetcher.fetch_products_by_category(category_id, product_limit)
+
+        if not asins:
+            return jsonify({"message": "No products found for the given category"}), 200
+
+        fetch_and_save_product_details(asins, max_products=product_limit)
+
+        return jsonify({"message": f"Successfully fetched and saved up to {product_limit} products"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # Health check endpoint
 @app.route('/health', methods=['GET'])
